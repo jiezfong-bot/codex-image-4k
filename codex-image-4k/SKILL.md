@@ -22,10 +22,12 @@ Never copy, commit, print, or package this file. The script only reads the acces
 
 ## Quick Checks
 
+When this skill is invoked, resolve script paths relative to this `SKILL.md` file's directory. Do not assume the current working directory contains `codex-image-4k/`.
+
 List supported sizes and aliases:
 
 ```bash
-node codex-image-4k/scripts/generate.mjs --list-sizes
+node /path/to/codex-image-4k/scripts/generate.mjs --list-sizes
 ```
 
 ## Generate
@@ -33,7 +35,7 @@ node codex-image-4k/scripts/generate.mjs --list-sizes
 Run:
 
 ```bash
-node codex-image-4k/scripts/generate.mjs \
+node /path/to/codex-image-4k/scripts/generate.mjs \
   --prompt "A clean editorial poster, crisp geometric composition, no text" \
   --size 3840x2160 \
   --quality high \
