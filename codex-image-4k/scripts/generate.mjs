@@ -8,6 +8,12 @@ const DEFAULT_BASE_URL = "https://chatgpt.com/backend-api/codex";
 const DEFAULT_RESPONSES_MODEL = "gpt-5.5";
 const DEFAULT_IMAGE_MODEL = "gpt-image-2";
 const DEFAULT_SIZE = "3840x2160";
+const DEFAULT_OUTPUT_DIR = path.join(
+  process.env.HOME || process.cwd(),
+  ".codex",
+  "generated_images",
+  "codex-image-4k",
+);
 const VERSION = "0.1.0";
 const SUPPORTED_SIZES = new Set([
   "1024x1024",
@@ -74,7 +80,7 @@ Options:
   --quality VALUE         low, medium, high, or auto. Default: high.
   --format VALUE          png, jpeg, or webp. Default: png.
   --background VALUE      opaque, transparent, or auto.
-  --out-dir PATH          Output directory. Default: codex-image-4k/generated.
+  --out-dir PATH          Output directory. Default: ~/.codex/generated_images/codex-image-4k.
   --auth-file PATH        Codex auth JSON. Default: ~/.codex/auth.json.
   --fix-size VALUE        resize or fail. Default: resize.
   --timeout MS            Request timeout. Default: 240000.
@@ -247,7 +253,7 @@ async function main() {
   );
   const token = readCodexAccessToken(authPath);
 
-  const outDir = path.resolve(String(args["out-dir"] ?? "codex-image-4k/generated"));
+  const outDir = path.resolve(String(args["out-dir"] ?? DEFAULT_OUTPUT_DIR));
   fs.mkdirSync(outDir, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const ext = extensionForFormat(format);

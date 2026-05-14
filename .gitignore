@@ -1,6 +1,7 @@
 .DS_Store
 codex-oauth-image-probe/
 codex-image-4k/generated/
+generated/
 *.log
 auth.json
 tokens.json

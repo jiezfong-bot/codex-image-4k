@@ -42,7 +42,7 @@ node /path/to/codex-image-4k/scripts/generate.mjs \
   --format png
 ```
 
-The script saves the image under `codex-image-4k/generated/` and verifies the actual pixel dimensions. If the generated file does not match the requested dimensions, it tries to resize to the exact target dimensions with `sips` on macOS when `--fix-size resize` is enabled, which is the default.
+The script saves the image under `~/.codex/generated_images/codex-image-4k/` by default and verifies the actual pixel dimensions. If the generated file does not match the requested dimensions, it tries to resize to the exact target dimensions with `sips` on macOS when `--fix-size resize` is enabled, which is the default.
 
 ## Parameters
 
@@ -55,7 +55,7 @@ The script saves the image under `codex-image-4k/generated/` and verifies the ac
 - `--background`: optional, one of `opaque`, `transparent`, `auto`.
 - `--model`: optional image model. Default: `gpt-image-2`.
 - `--responses-model`: optional mainline Responses model. Default: `gpt-5.5`.
-- `--out-dir`: optional output directory. Default: `codex-image-4k/generated`.
+- `--out-dir`: optional output directory. Default: `~/.codex/generated_images/codex-image-4k`.
 - `--fix-size`: optional, `resize` or `fail`. Default: `resize`.
 - `--auth-file`: optional path to a Codex auth JSON file. Default: `~/.codex/auth.json`, or `CODEX_AUTH_FILE` if set.
 - `--timeout`: optional request timeout in milliseconds. Default: `240000`.

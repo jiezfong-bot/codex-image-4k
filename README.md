@@ -36,6 +36,14 @@ Run release validation:
 node codex-image-4k/scripts/validate.mjs
 ```
 
+By default, generated images are saved to:
+
+```text
+~/.codex/generated_images/codex-image-4k/
+```
+
+Use `--out-dir` to override this per run.
+
 ## Size Aliases
 
 - `4k` / `4k-landscape` -> `3840x2160`
