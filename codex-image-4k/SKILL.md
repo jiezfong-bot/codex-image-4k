@@ -1,14 +1,14 @@
 ---
 name: codex-image-4k
-description: Generate exact-size images through the local Codex OAuth session, using the ChatGPT Codex Responses image_generation path with gpt-image-2. Use when the user wants 4K, 2K, or explicit pixel dimensions such as 3840x2160, 2160x3840, 2048x2048, 1536x1024, or 1024x1536 without an OpenAI API key.
+description: Generate or edit exact-size images through the local Codex OAuth session, using the ChatGPT Codex Responses image_generation path with gpt-image-2. Use when the user wants text-to-image or image-to-image output at 4K, 2K, or explicit pixel dimensions such as 3840x2160, 2160x3840, 2048x2048, 1536x1024, or 1024x1536 without an OpenAI API key.
 metadata:
-  short-description: Generate exact-size images with local Codex OAuth
+  short-description: Generate or edit exact-size images with Codex OAuth
   version: 0.1.0
 ---
 
 # Codex Image 4K
 
-Use this skill when the user wants image generation with explicit pixel dimensions and has a local Codex OAuth login but no OpenAI API key.
+Use this skill when the user wants image generation or image-to-image editing with explicit pixel dimensions and has a local Codex OAuth login but no OpenAI API key.
 
 This skill uses an unofficial Codex OAuth image-generation route that matches the Codex/OpenClaw-style `image_generation` request shape. Treat endpoint behavior as best-effort and verify output dimensions after every run.
 
@@ -42,12 +42,25 @@ node /path/to/codex-image-4k/scripts/generate.mjs \
   --format png
 ```
 
+For image-to-image, pass one local reference image:
+
+```bash
+node /path/to/codex-image-4k/scripts/generate.mjs \
+  --image /path/to/reference.png \
+  --prompt "Preserve the subject and turn the scene into a cinematic cyberpunk Shanghai rooftop at night" \
+  --size 3840x2160 \
+  --quality high \
+  --format png
+```
+
 The script saves the image under `~/.codex/generated_images/codex-image-4k/` by default and verifies the actual pixel dimensions. If the generated file does not match the requested dimensions, it tries to resize to the exact target dimensions with `sips` on macOS when `--fix-size resize` is enabled, which is the default.
 
 ## Parameters
 
 - `--prompt`: required image prompt.
 - `--prompt-file`: optional UTF-8 text file to read the prompt from instead of `--prompt`.
+- `--image`: optional local reference image path for image-to-image generation.
+- `--images`: optional comma-separated local reference image paths, up to 5 total.
 - `--size`: exact pixel size or alias. Supported presets: `1024x1024`, `1536x1024`, `1024x1536`, `2048x2048`, `2048x1152`, `3840x2160`, `2160x3840`.
 - Size aliases: `4k`, `4k-landscape`, `4k-portrait`, `2k-square`, `2k-landscape`, `square`, `landscape`, `portrait`.
 - `--quality`: optional, one of `low`, `medium`, `high`, `auto`. Default: `high`.
@@ -59,6 +72,8 @@ The script saves the image under `~/.codex/generated_images/codex-image-4k/` by 
 - `--fix-size`: optional, `resize` or `fail`. Default: `resize`.
 - `--auth-file`: optional path to a Codex auth JSON file. Default: `~/.codex/auth.json`, or `CODEX_AUTH_FILE` if set.
 - `--timeout`: optional request timeout in milliseconds. Default: `240000`.
+
+Reference images must be local `png`, `jpg`, `jpeg`, or `webp` files. Remote URLs are intentionally not fetched by the script.
 
 ## Safety
 

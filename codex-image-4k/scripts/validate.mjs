@@ -65,6 +65,15 @@ check("generate script syntax and sizes", () => {
   if (parsed.aliases?.["4k"] !== "3840x2160") throw new Error("4k alias mismatch");
 });
 
+check("generate script supports image references", () => {
+  const help = spawnSync(process.execPath, [path.join(root, "scripts/generate.mjs"), "--help"], {
+    encoding: "utf8",
+  });
+  if (help.status !== 0) throw new Error(help.stderr || help.stdout);
+  if (!help.stdout.includes("--image PATH")) throw new Error("--image help missing");
+  if (!help.stdout.includes("--images LIST")) throw new Error("--images help missing");
+});
+
 const ok = checks.every((entry) => entry.ok);
 console.log(JSON.stringify({ ok, checks }, null, 2));
 if (!ok) process.exit(1);

@@ -37,6 +37,14 @@ const SIZE_ALIASES = new Map([
 const SUPPORTED_QUALITIES = new Set(["low", "medium", "high", "auto"]);
 const SUPPORTED_FORMATS = new Set(["png", "jpeg", "webp"]);
 const SUPPORTED_BACKGROUNDS = new Set(["opaque", "transparent", "auto"]);
+const SUPPORTED_INPUT_MIME = new Map([
+  [".png", "image/png"],
+  [".jpg", "image/jpeg"],
+  [".jpeg", "image/jpeg"],
+  [".webp", "image/webp"],
+]);
+const MAX_REFERENCE_IMAGES = 5;
+const MAX_REFERENCE_IMAGE_BYTES = 25 * 1024 * 1024;
 
 function parseArgs(argv) {
   const out = {};
@@ -76,6 +84,8 @@ Usage:
 Options:
   --prompt TEXT           Image prompt.
   --prompt-file PATH      Read prompt from a UTF-8 text file.
+  --image PATH            Reference image path for image-to-image generation.
+  --images LIST           Comma-separated reference image paths. Max: 5.
   --size VALUE            Pixel size or alias. Default: 3840x2160.
   --quality VALUE         low, medium, high, or auto. Default: high.
   --format VALUE          png, jpeg, or webp. Default: png.
@@ -191,6 +201,69 @@ function readPrompt(args) {
   return String(args.prompt ?? "").trim();
 }
 
+function coerceArrayValue(value) {
+  if (value === undefined) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+function parseReferenceImageArgs(args) {
+  const values = [
+    ...coerceArrayValue(args.image),
+    ...coerceArrayValue(args.images).flatMap((value) =>
+      String(value)
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+    ),
+  ];
+  if (values.length > MAX_REFERENCE_IMAGES) {
+    throw new Error(`At most ${MAX_REFERENCE_IMAGES} reference images are supported.`);
+  }
+  return values;
+}
+
+function resolveReferenceImagePath(input) {
+  const raw = String(input).trim();
+  if (!raw) throw new Error("Reference image path cannot be empty.");
+  if (/^https?:\/\//i.test(raw)) {
+    throw new Error("Remote reference image URLs are not supported yet. Download the image locally and pass its path.");
+  }
+  if (/^data:/i.test(raw)) {
+    throw new Error("Data URL reference images are not supported on the command line. Pass a local file path.");
+  }
+  if (/^file:\/\//i.test(raw)) {
+    return new URL(raw);
+  }
+  return path.resolve(raw);
+}
+
+function readReferenceImages(inputs) {
+  return inputs.map((input, index) => {
+    const filePath = resolveReferenceImagePath(input);
+    const statPath = filePath instanceof URL ? filePath : path.resolve(filePath);
+    const stat = fs.statSync(statPath);
+    if (!stat.isFile()) {
+      throw new Error(`Reference image is not a file: ${input}`);
+    }
+    if (stat.size > MAX_REFERENCE_IMAGE_BYTES) {
+      throw new Error(`Reference image is too large (${stat.size} bytes): ${input}`);
+    }
+    const ext = path.extname(filePath instanceof URL ? filePath.pathname : filePath).toLowerCase();
+    const mimeType = SUPPORTED_INPUT_MIME.get(ext);
+    if (!mimeType) {
+      throw new Error(`Unsupported reference image type ${ext || "(none)"} for ${input}. Use png, jpg, jpeg, or webp.`);
+    }
+    const buffer = fs.readFileSync(filePath);
+    return {
+      index,
+      input: String(input),
+      mimeType,
+      bytes: buffer.length,
+      dataUrl: `data:${mimeType};base64,${buffer.toString("base64")}`,
+    };
+  });
+}
+
 function extractImageResultFromSse(text) {
   let imageBase64 = null;
   let revisedPrompt = null;
@@ -236,6 +309,7 @@ async function main() {
 
   const prompt = readPrompt(args);
   if (!prompt) throw new Error("--prompt or --prompt-file is required");
+  const referenceImages = readReferenceImages(parseReferenceImageArgs(args));
 
   const size = parseSize(String(args.size ?? DEFAULT_SIZE).trim());
   const quality = requireChoice("--quality", String(args.quality ?? "high").trim().toLowerCase(), SUPPORTED_QUALITIES);
@@ -264,7 +338,14 @@ async function main() {
     input: [
       {
         role: "user",
-        content: [{ type: "input_text", text: prompt }],
+        content: [
+          { type: "input_text", text: prompt },
+          ...referenceImages.map((image) => ({
+            type: "input_image",
+            image_url: image.dataUrl,
+            detail: "auto",
+          })),
+        ],
       },
     ],
     instructions: "You are an image generation assistant.",
@@ -337,6 +418,12 @@ async function main() {
     requestedSizeInput: size.input,
     format,
     quality,
+    mode: referenceImages.length > 0 ? "image-to-image" : "text-to-image",
+    referenceImages: referenceImages.map((image) => ({
+      input: image.input,
+      mimeType: image.mimeType,
+      bytes: image.bytes,
+    })),
     resized,
     bytes: finalBuffer.length,
     sha256: crypto.createHash("sha256").update(finalBuffer).digest("hex"),

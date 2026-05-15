@@ -1,6 +1,6 @@
 # codex-image-4k
 
-Codex skill for generating exact-size images through a local Codex OAuth login, without an OpenAI API key.
+Codex skill for generating and editing exact-size images through a local Codex OAuth login, without an OpenAI API key.
 
 The skill reads the current user's local Codex auth file at runtime:
 
@@ -19,6 +19,17 @@ Copy the `codex-image-4k/` folder into your Codex skills directory, or install i
 ```bash
 node codex-image-4k/scripts/generate.mjs \
   --prompt "A clean cinematic poster, no text" \
+  --size 3840x2160 \
+  --quality high \
+  --format png
+```
+
+Image-to-image:
+
+```bash
+node codex-image-4k/scripts/generate.mjs \
+  --image ./reference.png \
+  --prompt "Preserve the subject and turn the scene into a cinematic cyberpunk Shanghai rooftop at night" \
   --size 3840x2160 \
   --quality high \
   --format png
@@ -43,6 +54,8 @@ By default, generated images are saved to:
 ```
 
 Use `--out-dir` to override this per run.
+
+Reference images must be local `png`, `jpg`, `jpeg`, or `webp` files. Use `--image` for one reference or `--images` for a comma-separated list of up to 5 references.
 
 ## Size Aliases
 

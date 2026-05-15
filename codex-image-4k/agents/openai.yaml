@@ -1,6 +1,6 @@
 interface:
   display_name: "Codex Image 4K"
-  short_description: "Generate exact-size images with Codex OAuth"
+  short_description: "Generate and edit exact-size images"
   brand_color: "#2563EB"
   default_prompt: "Use $codex-image-4k to generate a 3840x2160 cinematic image from my prompt."
 
