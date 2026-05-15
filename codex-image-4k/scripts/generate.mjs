@@ -14,7 +14,7 @@ const DEFAULT_OUTPUT_DIR = path.join(
   "generated_images",
   "codex-image-4k",
 );
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 const SUPPORTED_SIZES = new Set([
   "1024x1024",
   "1536x1024",

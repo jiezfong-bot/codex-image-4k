@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.0 - 2026-05-15
+
+### Features
+
+- Add image-to-image support with `--image` and `--images` reference inputs.
+- Accept up to 5 local PNG, JPEG, or WebP reference images.
+- Report generation mode and reference-image metadata in script output.
+
+### Documentation
+
+- Document image-to-image usage in the skill instructions and README.
+
 ## 0.1.0 - 2026-05-14
 
 ### Features

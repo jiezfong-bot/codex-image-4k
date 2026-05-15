@@ -3,7 +3,7 @@ name: codex-image-4k
 description: Generate or edit exact-size images through the local Codex OAuth session, using the ChatGPT Codex Responses image_generation path with gpt-image-2. Use when the user wants text-to-image or image-to-image output at 4K, 2K, or explicit pixel dimensions such as 3840x2160, 2160x3840, 2048x2048, 1536x1024, or 1024x1536 without an OpenAI API key.
 metadata:
   short-description: Generate or edit exact-size images with Codex OAuth
-  version: 0.1.0
+  version: 0.2.0
 ---
 
 # Codex Image 4K

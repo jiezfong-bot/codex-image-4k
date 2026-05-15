@@ -29,7 +29,7 @@ check("required files", () => {
 check("skill metadata", () => {
   const skill = read("SKILL.md");
   if (!/^name:\s*codex-image-4k$/m.test(skill)) throw new Error("SKILL.md name mismatch");
-  if (!/^\s*version:\s*0\.1\.0$/m.test(skill)) throw new Error("metadata.version missing");
+  if (!/^\s*version:\s*0\.2\.0$/m.test(skill)) throw new Error("metadata.version missing");
 });
 
 check("openai yaml", () => {
